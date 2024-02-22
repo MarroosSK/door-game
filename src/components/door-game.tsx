@@ -10,8 +10,8 @@ const DoorGame = ({ userSettings }: { userSettings: UserSettingsI }) => {
     Array.from({ length: 3 }, () => Math.floor(Math.random() * 3) + 1)
   );
   */
-  /* eslint-disable @typescript-eslint/no-unused-vars */
-  const [doorSequence, setDoorSequence] = useState<number[]>([1, 3, 2, 1, 2]);
+
+  const [doorSequence] = useState<number[]>([1, 3, 2, 1, 2]);
   const [myDoors, setMyDoors] = useState<number[]>([]);
   const [switcher, setSwitcher] = useState<boolean>(false);
   const [win, setWin] = useState<boolean>(false);
