@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DoorGame from "./components/door-game";
 import UserSettings from "./components/user-settings";
 import Header from "./components/header";
 import { UserSettingsI } from "./types/types";
+import Aos from "aos";
 
 function App() {
   const [userSettings, setUserSettings] = useState<UserSettingsI>({
@@ -20,8 +21,17 @@ function App() {
       setIsGameRunning(true);
     }
   };
+
+  useEffect(() => {
+    Aos.init();
+  }, []);
   return (
-    <div className="flex flex-col items-center justify-center h-screen  gap-y-5">
+    <div
+      className="flex flex-col items-center justify-center h-screen  gap-y-5"
+      data-aos="fade-zoom-in"
+      data-aos-delay="50"
+      data-aos-duration="1500"
+    >
       <Header title="Door Game" subtitle="get through the door" />
       {isGameRunning ? (
         <DoorGame userSettings={userSettings} />
