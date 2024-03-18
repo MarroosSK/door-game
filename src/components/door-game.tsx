@@ -1,74 +1,78 @@
-import { useEffect, useState } from "react";
+import { useCallback, useContext, useEffect } from "react";
 
 import ImageBox from "./image-box";
 import ImageWrapper from "./image-wrapper";
-import { UserSettingsI } from "../types/types";
+// import { UserSettingsI } from "../types/types";
+import { DoorContext } from "../context/door-context";
 
-const DoorGame = ({ userSettings }: { userSettings: UserSettingsI }) => {
-  /*
-  const [doorSequence, setDoorSequence] = useState<number[]>(
-    Array.from({ length: 3 }, () => Math.floor(Math.random() * 3) + 1)
+const DoorGame = () => {
+  const doorContext = useContext(DoorContext);
+
+  const handleTurn = useCallback(
+    (doorNumber: number) => {
+      doorContext?.setActiveClickedDoor(doorNumber);
+      doorContext?.setMyDoors((prevDoor) => [...prevDoor, doorNumber]);
+    },
+    [doorContext?.setActiveClickedDoor]
   );
-  */
-
-  const [doorSequence] = useState<number[]>([1, 3, 2, 1, 2]);
-  const [myDoors, setMyDoors] = useState<number[]>([]);
-  const [switcher, setSwitcher] = useState<boolean>(false);
-  const [win, setWin] = useState<boolean>(false);
-  const [winMsg, setWinMsg] = useState<string>("");
-  const [activeDoorIndex, setActiveDoorIndex] = useState<number | null>(null);
-  const [activeClickedDoor, setActiveClickedDoor] = useState<number | null>(
-    null
-  );
-
-  const handleTurn = (doorNumber: number) => {
-    setActiveClickedDoor(doorNumber);
-    setMyDoors((prevDoor) => [...prevDoor, doorNumber]);
-  };
 
   useEffect(() => {
     let count = 0;
 
     const interval = setInterval(() => {
-      if (count < doorSequence.length) {
-        const turn = doorSequence[count];
-        setActiveDoorIndex(turn);
+      if (doorContext && doorContext?.doorSequence.length > count) {
+        const turn = doorContext?.doorSequence[count];
+        doorContext?.setActiveDoorIndex(turn);
         count++;
       } else {
-        setSwitcher(true);
+        doorContext?.setSwitcher(true);
       }
-    }, userSettings.intervalSpeed);
+    }, doorContext?.userSettings.intervalSpeed);
 
     return () => clearInterval(interval);
-  }, [doorSequence, userSettings]);
+  }, [doorContext?.doorSequence, doorContext?.userSettings]);
 
   useEffect(() => {
-    if (myDoors.length === doorSequence.length) {
-      const isWinningSequence = myDoors.every(
-        (door, index) => door === doorSequence[index]
+    if (doorContext?.myDoors.length === doorContext?.doorSequence.length) {
+      const isWinningSequence = doorContext?.myDoors.every(
+        (door, index) => door === doorContext?.doorSequence[index]
       );
       if (isWinningSequence) {
-        setWin(true);
-        setWinMsg("Victory!");
-        setSwitcher(false);
+        doorContext?.setWin(true);
+        doorContext?.setWinMsg("Victory!");
+        doorContext?.setSwitcher(false);
+        doorContext?.setResultList((prevVal) => [
+          ...prevVal,
+          {
+            user: doorContext.userSettings.userName,
+            result: "Win",
+          },
+        ]);
       } else {
-        setWin(true);
-        setWinMsg("Lose! Try again.");
-        setSwitcher(false);
+        doorContext?.setWin(true);
+        doorContext?.setWinMsg("Lose!");
+        doorContext?.setSwitcher(false);
+        doorContext?.setResultList((prevVal) => [
+          ...prevVal,
+          {
+            user: doorContext.userSettings.userName,
+            result: "Lose",
+          },
+        ]);
       }
     }
-  }, [myDoors, doorSequence]);
+  }, [doorContext?.myDoors, doorContext?.doorSequence]);
 
   return (
     <div className="mt-4 ">
-      {!win ? (
+      {!doorContext?.win ? (
         <p className="text-center text-lg text-gray-500 text-muted-foreground">
-          Good luck, {userSettings.userName}
+          Good luck, {doorContext?.userSettings.userName}
         </p>
       ) : (
         <div className="flex flex-col gap-x-2">
           <p className="animate-pulse text-center text-2xl text-gray-500 text-muted-foreground">
-            {winMsg}
+            {doorContext?.winMsg}
           </p>
           <button
             className="m-3 h-8 p-y-3 rounded-lg text-white bg-indigo-500 hover:bg-indigo-700"
@@ -79,16 +83,25 @@ const DoorGame = ({ userSettings }: { userSettings: UserSettingsI }) => {
         </div>
       )}
       <div className="flex items-center gap-3">
-        {!switcher ? (
+        {!doorContext?.switcher ? (
           <>
             <ImageWrapper>
-              <ImageBox position={1} activeDoorIndex={activeDoorIndex} />
+              <ImageBox
+                position={1}
+                activeDoorIndex={doorContext?.activeDoorIndex}
+              />
             </ImageWrapper>
             <ImageWrapper>
-              <ImageBox position={2} activeDoorIndex={activeDoorIndex} />
+              <ImageBox
+                position={2}
+                activeDoorIndex={doorContext?.activeDoorIndex}
+              />
             </ImageWrapper>
             <ImageWrapper>
-              <ImageBox position={3} activeDoorIndex={activeDoorIndex} />
+              <ImageBox
+                position={3}
+                activeDoorIndex={doorContext?.activeDoorIndex}
+              />
             </ImageWrapper>
           </>
         ) : (
@@ -97,19 +110,28 @@ const DoorGame = ({ userSettings }: { userSettings: UserSettingsI }) => {
               onClick={() => handleTurn(1)}
               className="cursor-pointer"
             >
-              <ImageBox position={1} activeDoorIndex={activeClickedDoor} />
+              <ImageBox
+                position={1}
+                activeDoorIndex={doorContext?.activeClickedDoor}
+              />
             </ImageWrapper>
             <ImageWrapper
               onClick={() => handleTurn(2)}
               className="cursor-pointer"
             >
-              <ImageBox position={2} activeDoorIndex={activeClickedDoor} />
+              <ImageBox
+                position={2}
+                activeDoorIndex={doorContext?.activeClickedDoor}
+              />
             </ImageWrapper>
             <ImageWrapper
               onClick={() => handleTurn(3)}
               className="cursor-pointer"
             >
-              <ImageBox position={3} activeDoorIndex={activeClickedDoor} />
+              <ImageBox
+                position={3}
+                activeDoorIndex={doorContext?.activeClickedDoor}
+              />
             </ImageWrapper>
           </>
         )}

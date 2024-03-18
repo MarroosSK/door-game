@@ -1,13 +1,20 @@
-import { useEffect, useRef } from "react";
-import { UserSettingssssI } from "../types/types";
+import { useContext, useEffect, useRef, useState } from "react";
+import { DoorContext } from "../context/door-context";
 
-const UserSettings = ({
-  userSettings,
-  setUserSettings,
-  onPlay,
-  errorMessage,
-}: UserSettingssssI) => {
-  const inputRef = useRef<HTMLInputElement>(null);
+const UserSettings = () => {
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string>("");
+
+  const doorContext = useContext(DoorContext);
+
+  const handlePlay = () => {
+    if (doorContext?.userSettings.userName.length === 0) {
+      setErrorMessage("Enter at least 1 character as username");
+      return;
+    } else {
+      doorContext?.setIsGameRunning(true);
+    }
+  };
 
   useEffect(() => {
     if (inputRef.current) {
@@ -36,9 +43,9 @@ const UserSettings = ({
           type="text"
           id="name"
           name="name"
-          value={userSettings.userName}
+          value={doorContext?.userSettings.userName}
           onChange={(e) =>
-            setUserSettings((prevState) => ({
+            doorContext?.setUserSettings((prevState) => ({
               ...prevState,
               userName: e.target.value,
             }))
@@ -61,19 +68,21 @@ const UserSettings = ({
           name="speed"
           min="200"
           max="5000"
-          value={userSettings.intervalSpeed}
+          value={doorContext?.userSettings.intervalSpeed}
           onChange={(e) =>
-            setUserSettings((prevState) => ({
+            doorContext?.setUserSettings((prevState) => ({
               ...prevState,
               intervalSpeed: parseInt(e.target.value),
             }))
           }
         />
-        <span className="text-gray-600">{userSettings.intervalSpeed}ms</span>
+        <span className="text-gray-600">
+          {doorContext?.userSettings.intervalSpeed}ms
+        </span>
       </div>
       <button
         className="w-full h-8 p-y-3 rounded-lg text-white bg-indigo-500 hover:bg-indigo-700"
-        onClick={() => onPlay()}
+        onClick={() => handlePlay()}
       >
         Play
       </button>

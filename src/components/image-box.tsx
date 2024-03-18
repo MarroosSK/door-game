@@ -6,7 +6,7 @@ const ImageBox = ({
   activeDoorIndex,
 }: {
   position: number;
-  activeDoorIndex: number | null;
+  activeDoorIndex: number | null | undefined;
 }) => {
   return (
     <img

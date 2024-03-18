@@ -1,26 +1,16 @@
-import { useEffect, useState } from "react";
-import DoorGame from "./components/door-game";
-import UserSettings from "./components/user-settings";
-import Header from "./components/header";
-import { UserSettingsI } from "./types/types";
 import Aos from "aos";
+import { useContext, useEffect } from "react";
+import DoorGame from "./components/door-game";
+import Header from "./components/header";
+import UserSettings from "./components/user-settings";
+import { DoorContext } from "./context/door-context";
+import { DoorContextI } from "./types/types";
+import Results from "./components/results";
 
 function App() {
-  const [userSettings, setUserSettings] = useState<UserSettingsI>({
-    userName: "",
-    intervalSpeed: 1000,
-  });
-  const [errorMessage, setErrorMessage] = useState("");
-  const [isGameRunning, setIsGameRunning] = useState(false);
+  const doorContext = useContext(DoorContext) as DoorContextI;
 
-  const handlePlay = () => {
-    if (userSettings.userName.length === 0) {
-      setErrorMessage("Enter at least 1 character as username");
-      return;
-    } else {
-      setIsGameRunning(true);
-    }
-  };
+  const { isGameRunning } = doorContext;
 
   useEffect(() => {
     Aos.init();
@@ -34,14 +24,13 @@ function App() {
     >
       <Header title="Door Game" subtitle="get through the door" />
       {isGameRunning ? (
-        <DoorGame userSettings={userSettings} />
+        <DoorGame />
       ) : (
-        <UserSettings
-          userSettings={userSettings}
-          setUserSettings={setUserSettings}
-          onPlay={handlePlay}
-          errorMessage={errorMessage}
-        />
+        <div className=" flex flex-col  items-center gap-3">
+          <UserSettings />
+          <Header title="Results" subtitle="check leaderboard" />
+          <Results />
+        </div>
       )}
     </div>
   );
